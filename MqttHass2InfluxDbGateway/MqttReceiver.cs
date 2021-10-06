@@ -33,7 +33,7 @@ namespace MqttHass2InfluxDbGateway
 
         protected MqttConfiguration MqttConfiguration { get; }
 
-        private readonly object SensorsLockObject = new object();
+        private readonly object SensorsLockObject = new();
         protected List<Sensor> Sensors { get; } = new List<Sensor>();
 
         public MqttReceiver(
@@ -152,7 +152,7 @@ namespace MqttHass2InfluxDbGateway
             {
                 Sensor[] sensors = null;
                 lock (SensorsLockObject)
-                    sensors = Sensors.Where(e => msg.ApplicationMessage.Topic.LikeMqttHassTopic(e.StatTopic)).ToArray();
+                    sensors = Sensors.Where(e => msg.ApplicationMessage.Topic.LikeMqttHassTopic(e.StateTopic)).ToArray();
 
                 if (!sensors.Any())
                 {
@@ -168,7 +168,7 @@ namespace MqttHass2InfluxDbGateway
                 var fields = new Dictionary<string, object>();
                 foreach (var sensor in sensors)
                 {
-                    var valName = Regex.Match(sensor.ValueJScript, @"^\{\{ value_json.(\w*)|").Groups[1].ToString();
+                    var valName = Regex.Match(sensor.ValueTemplate, @"^\{\{ value_json.(\w*)|").Groups[1].ToString();
                     var valStorageName = Storage.PrepareValueName(valName);
 
                     if (!string.IsNullOrEmpty(valStorageName) && sensorData.ContainsKey(valName))
