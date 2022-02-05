@@ -126,7 +126,7 @@ namespace MqttHass2InfluxDbGateway
                 }
 
                 Logger.LogInformation("Receive component data message '{component}' at: {time}", msg.ApplicationMessage.Topic, DateTimeOffset.Now);
-                Logger.LogTrace(msg.ApplicationMessage.ConvertPayloadToString());
+                Logger.LogTrace("{payload}", msg.ApplicationMessage.ConvertPayloadToString());
 
                 var fields = new Dictionary<string, object>();
 
@@ -140,25 +140,26 @@ namespace MqttHass2InfluxDbGateway
                         componentId = componentData.Value<string>("id");
 
                         Logger.LogTrace("This is sensors. ComponentId: {componentId}", componentId);
-                        Logger.LogTrace($"Sensors: {string.Join(", ", components.Select(e=>e.Name))}");
+                        Logger.LogTrace("Sensors: {sensors}", string.Join(", ", components.Select(e => e.Name)));
 
                         foreach (Sensor component in components.Where(e => e is Sensor))
                         {
                             var valName = Regex.Match(component.ValueTemplate, @"^\{\{ value_json.(\w*)|").Groups[1].ToString();
                             var valStorageName = Storage.PrepareValueName(valName);
 
-                            Logger.LogTrace($"{nameof(valName)}:{valName} - {nameof(valStorageName)}:{valStorageName}");
+                            Logger.LogTrace("{valName}:{valValue} - {valStorageName}:{valStorageValue}",
+                                nameof(valName), valName, nameof(valStorageName), valStorageName);
 
                             if (!string.IsNullOrEmpty(valStorageName) && componentData.ContainsKey(valName))
                             {
                                 var value = componentData.Value<double>(valName);
 
-                                Logger.LogTrace($"{nameof(value)}:{value}");
+                                Logger.LogTrace("{valueName}:{valueValue}", nameof(value), value);
 
                                 if (!fields.ContainsKey(valStorageName))
                                     fields.Add(valStorageName, value);
 
-                                Logger.LogTrace($"{string.Join(", ", fields.Select(e => e.Key))}");
+                                Logger.LogTrace("{fields}", string.Join(", ", fields.Select(e => e.Key)));
                             }
                         }
                     }; break;

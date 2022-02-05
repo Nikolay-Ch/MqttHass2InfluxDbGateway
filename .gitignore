@@ -349,3 +349,4 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 /MqttHass2InfluxDbGateway/Properties/launchSettings.json
+/MqttHass2InfluxDbGateway.Docker.Build.cmd
